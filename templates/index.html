@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"></script>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/main.css') }}">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.0/socket.io.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
+
+<head>
+</head>
+
+<body>
+    <div id="table">
+        <!-- add the table image -->
+        <img class="img" src='/static/images/poker_table.png'>
+        <!-- 在寫玩家1的兩張牌 -->
+        <div id="overlay" style = "display: none;">
+            <div id="overlay-content">
+     <!-- Options for the user to select  -->
+                <div><h2 class="choose">Please choose how many opponents do you want.</head></div>
+                <button type = button  class="button" id = "1" onclick="makeSelection(1)">1</button>
+                <button type = button class="button" id = "2" onclick="makeSelection(2)">2</button>
+                <button type = button class="button" id = "3" onclick="makeSelection(3)">3</button>
+                </div>
+            </div>
+        <!-- <div id="content">
+            
+        </div> -->
+
+        
+
+        
+
+        <div id="player1" class="seat" style="display:none">
+            <div id="player1-fold" class="cardfold"></div>
+            <div class="holecards">
+                <div class = "card holecard1" id="player1-card1"></div>
+                <div class = "card holecard2" id="player1-card2"></div>
+            </div>
+            <div class="name-chips">
+                <div class="player-name">You</div>
+                <div id="player1-chips"></div>
+                <div id = "player1-action" class="bet"></div>
+            </div>
+            <div id="button"  style="display:none"></div>
+            <div id="bigblind"  style="display:none"></div>
+            <div id="smallblind" style="display:none"></div>
+        </div>
+        
+        <!-- 玩家2的兩張牌 -->
+        <div id="player2" class="seat"  style="display:none">
+            <div id="player2-fold" class="cardfold"></div>
+            <div class="holecards">
+            <div class= "card holecard1" id="player2-card1"></div>
+            <div class= "card holecard2" id="player2-card2"></div>
+            </div>
+            <div class="name-chips">
+                <div class="player-name">Old CNN</div>
+                <div id="player2-chips"></div>
+                <div id = "player2-action" class="bet"></div>
+            </div>
+            <div id="button"  style="display:none"></div>
+            <div id="bigblind"  style="display:none"></div>
+            <div id="smallblind" style="display:none"></div>
+            <!-- <div class="bet"></div> -->
+        </div>
+
+        <!-- player3's 2 card-->
+        <div id="player3" class="seat"  style="display:none">
+            <div id="player3-fold" class="cardfold"></div>
+            <div class="holecards">
+            <div class= "card holecard1" id="player3-card1"></div>
+            <div class="card holecard2" id="player3-card2"></div>
+        </div>
+        <div class="name-chips">
+            <div class="player-name">New CNN</div>
+            <div id="player3-chips"></div>
+            <div id = "player3-action" class="bet"></div>
+        </div>
+        <div id="button"  style="display:none"></div>
+            <div id="bigblind"  style="display:none"></div>
+            <div id="smallblind" style="display:none"></div>
+        <!-- <div class="bet"></div> -->
+        </div>
+        <!-- player4's 2 card-->
+        <div id="player4" class="seat"  style="display:none">
+            <div id="player4-fold" class="cardfold"></div>
+            <div class="holecards">
+            <div class = "card holecard1" id="player4-card1"></div>
+            <div class = "card holecard2" id="player4-card2"></div>
+        </div>
+        <div id="button"  style="display:none"></div>
+            <div id="bigblind"  style="display:none"></div>
+            <div id="smallblind" style="display:none"></div>
+        <div class="name-chips">
+            <div class="player-name">Random Forest</div>
+            <div id="player4-chips"></div>
+            <div id = "player4-action" class="bet"></div>
+        </div>
+        <!-- <div class="bet"></div> -->
+    </div>
+        <!-- <div id="amount">
+            <form>
+                <label for="amount"class="amount">Amount:</label>
+                <input type="text" id ="amount">
+            </form>
+            </div> -->
+        <!-- <form>
+                <label for="amount"class="amount">Amount:</label>
+                <input type="text" id ="input">
+            </form> -->
+
+
+        <!-- <div class="potString" id="potString"></div>
+        <div class="pot" id="pot"></div> -->
+        <!-- 公共牌 一共會有五張 -->
+        <div id="community-cards"  style="display:none">
+            <div class="card community-card" id="community-card1"></div>
+            <div class="card community-card" id="community-card2"></div>
+            <div class="card community-card" id="community-card3"></div>
+            <div class="card community-card" id="community-card4"></div>
+            <div class="card community-card" id="community-card5"></div>
+        </div>
+        <div id="pot"class="pot">
+            Total pot:$ 0 
+        </div>
+        <!-- <div id="callAmount" class="callAmount">
+            Call: $ 0
+        </div> -->
+    </div>
+    <!-- <div class="potBox"> -->
+      
+<!-- </div> -->
+    <!-- <div class = "promptContainer"> -->
+        
+    <!-- 列出該有哪些按鈕，未來還會更動 -->
+    <!-- <div id="button"  style="display:none"></div>
+    <div id="bigblind"  style="display:none"></div>
+    <div id="smallblind" style="display:none"></div> -->
+    <div id="button-container">
+         <!--new button "all in "-->
+        <button type="button" class="button" id="check" width="5%">Check</button>
+        <button type="button" class="button" id="call" width="5%">Call</button>
+        <button type="button" class="button" id="fold" width="5%">Fold</button>
+        <!--<button type="button" class="button" id="allin" width="5%">All In</button>-->
+    </div>
+    <div id="input-container">
+        <label>
+            <!-- <button onclick="raise()" type="submit" class="button" id="raise" width="5%">Raise</button> -->
+            <button type="button" class="button" id="raise" width="5%">Raise</button>
+            <input type="text" id="input" width="5%" placeholder="Enter amount of Raise">
+        </label>
+        <div id="error-message"></div>
+    </div>
+    <div id="prompt-container">
+        <div class="prompt" id="prompt"></div>
+        <!-- <div class="prompt" id="winner"></div> -->
+        <p id="winner"></p>
+    </div>
+    <div id="setup-container">
+    <!-- <button id="toCallValue"></button> -->
+    <button type="button" class="button" id="new-table" width="5%">New Table</button>
+    <button type="button" onclick="showNewGame()" class="button" id="new-game" width="5%" style="display: none;">New Game</button>
+    <button type="button" class="button" id="showRulesButton" width="5%">Rules</button>
+        <div id="gameRules">
+            <h2>Game Rule</h2>
+            <div id="rulesContainer">
+                <h3>操作說明</h3>
+                <ul>
+                    <li>New Table</li>
+                    <p>初始化遊戲設定選擇玩家人數</p>
+                    <li>New Game</li>
+                    <p>接續上一局的結果發牌</p>
+                    <li>Rules</li>
+                    <p>顯示遊戲規則及牌型大小</p>
+                </ul>
+                <h3>玩家動作提示</h3>
+                <ul>
+                    <li>Call</li>
+                    <p>Call金額大於0的時候代表前面有人Raise加注</p>
+                    <p>請選擇Call或Raise比目前需加注金額更大的值</p>
+                    <p>此時若按check會視為不跟注並Fold</p>
+                    <li>Raise</li>
+                    <p>加注時請超過目前需要Call的金額</p>
+                </ul>
+                <h3>牌型大小</h3>
+                <p>德州撲克有以下牌型（由高到低）：</p>
+                <ul>
+                    <li>皇家同花順(Royal flush)</li>
+                    <p>同一花色A、K、Q、J、10</p>
+                    <li>同花順(Straight flush)</li>
+                    <p>5張數字連續且同一花色</p>
+                    <li>四條(Four of a Kind)</li>
+                    <p>4張數字相同</p>
+                    <li>葫蘆(Full House)</li>
+                    <p>3張數字相同且2張數字相同</p>
+                    <li>同花(Flush)</li>
+                    <p>5張同樣花色</p>
+                    <li>順子(Straight)</li>
+                    <p>5張數字連續</p>
+                    <li>三條(Three of a Kind)</li>
+                    <p>3張數字相同</p>
+                    <li>兩對(Two Pairs)</li>
+                    <p>2張數字相同且另外2張其他數字相同</p>
+                    <li>一對(One Pair)</li>
+                    <p>2張數字相同</p>
+                    <li>高牌(High Card)</li>
+                    <p>單張最大</p>
+                </ul>
+                <p>遊戲目標是將手中2張牌與牌桌上5張公共牌組合成5張最大的牌型以赢得底池中的籌碼。</p>
+            </div>
+            <button id="closeRulesButton">Close</button>
+        </div>
+    
+    <!-- <button type="button" class="button" id="rcvFlopCard" width="5%">rcvFlopCard</button>
+    <button type="button" class="button" id="rcvTurnCard" width="5%">rcvTurnCard</button>
+    <button type="button" class="button" id="rcvRiverCard" width="5%">rcvRiverCard</button>
+    <button type="button" class="button" id="rcvOpponentCard" width="5%">rcvOpponentCard</button> -->
+</div>
+    <!-- 抓static底下的poker.js進來 -->
+    <script src="{{ url_for('static', filename='js/poker.js') }}"></script>
+
+
+</body>
+
+</html>
